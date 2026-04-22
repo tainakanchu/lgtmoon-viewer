@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code local artifacts (share only rules/)
+.claude/memo/
+/note/
