@@ -1,0 +1,42 @@
+name: Verify Actions Pinned
+
+on:
+  pull_request:
+    paths:
+      - '.github/**'
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - '.github/**'
+
+jobs:
+  # --- ここから: SHA pinning 検証ジョブ（shell grep 版）---
+  # 外部ツール不要。タグ指定の混入を grep で検知する。
+  verify-actions-pinned:
+    name: Verify GitHub Actions are SHA-pinned
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Check for unpinned actions
+        run: |
+          # YAML の uses: キー行（行頭インデント + 任意の '-' + uses: + 空白）のみを対象にする。
+          # シェルスクリプト内のクォート文字列 ('uses:...') を誤検出しないため、行頭から構造判定する。
+          # ローカルアクション (./) と Docker アクション (docker://) は除外。
+          unpinned=$(
+            grep -rnE '^[[:space:]]*-?[[:space:]]*uses:[[:space:]]+' .github/ \
+            | grep -v 'uses:[[:space:]]*\./' \
+            | grep -v 'uses:[[:space:]]*docker://' \
+            | grep -E 'uses:.*@' \
+            | grep -vE 'uses:[[:space:]]*[^[:space:]]+@[0-9a-f]{40}([[:space:]]|$)' \
+            || true
+          )
+          if [ -n "$unpinned" ]; then
+            echo "::error::未ピン留めの GitHub Actions が見つかりました:"
+            echo "$unpinned"
+            echo ""
+            echo "コミットハッシュ形式（例: action@<sha> # v4）に変更してください。"
+            exit 1
+          fi
+          echo "All actions are SHA-pinned."
