@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout.tsx";
 import { RandomPage } from "./pages/RandomPage.tsx";
 import { FavoritesPage } from "./pages/FavoritesPage.tsx";
@@ -8,7 +8,7 @@ import { ImportPage } from "./pages/ImportPage.tsx";
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<RandomPage />} />
@@ -18,7 +18,7 @@ function App() {
           <Route path="/import" element={<ImportPage />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
