@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   loadSettings,
   saveSettings,
@@ -15,6 +15,7 @@ import {
   type ImportMode,
   type ImportResult,
 } from "../services/backupService.ts";
+import { getPersistenceStatus } from "../services/durableStorage.ts";
 import type { Settings } from "../types.ts";
 
 export function SettingsPage() {
@@ -22,6 +23,20 @@ export function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [testNumber, setTestNumber] = useState("1");
   const [testResult, setTestResult] = useState<string | null>(null);
+
+  const [persisted, setPersisted] = useState<boolean | null | undefined>(
+    undefined,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    getPersistenceStatus().then((s) => {
+      if (!cancelled) setPersisted(s.persisted);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importMode, setImportMode] = useState<ImportMode>("merge");
@@ -160,6 +175,16 @@ export function SettingsPage() {
           Favorites, ignore ranges, and settings をまとめて JSON として
           エクスポート・インポートできます。
         </p>
+        {persisted !== undefined && (
+          <p className="backup-description">
+            永続化:{" "}
+            {persisted === null
+              ? "非対応"
+              : persisted
+                ? "有効"
+                : "無効（ブラウザ判断で削除される可能性あり）"}
+          </p>
+        )}
 
         <div className="backup-actions">
           <button className="btn btn-primary" onClick={handleExport}>

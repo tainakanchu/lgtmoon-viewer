@@ -1,8 +1,9 @@
 import type { FavoriteItem, LegacyFavorite } from "../types.ts";
 import { extractImageNumber } from "../utils/extractImageNumber.ts";
 import { loadFavorites, saveFavorites } from "./favoritesStore.ts";
+import { STORAGE_KEYS, setItem } from "./durableStorage.ts";
 
-const IMPORT_META_KEY = "lgtmoon-wrapper/import-meta";
+const IMPORT_META_KEY = STORAGE_KEYS.importMeta;
 
 export function importLegacyFavorites(json: string): {
   imported: number;
@@ -52,7 +53,7 @@ export function importLegacyFavorites(json: string): {
     saveFavorites([...existing, ...newItems]);
   }
 
-  localStorage.setItem(
+  setItem(
     IMPORT_META_KEY,
     JSON.stringify({
       importedAt: new Date().toISOString(),
