@@ -1,19 +1,21 @@
 import type { FavoriteItem } from "../types.ts";
+import { STORAGE_KEYS, getItem, setItem } from "./durableStorage.ts";
 
-const STORAGE_KEY = "lgtmoon-wrapper/favorites";
+const STORAGE_KEY = STORAGE_KEYS.favorites;
 
 export function loadFavorites(): FavoriteItem[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = getItem(STORAGE_KEY);
     if (!raw) return [];
-    return JSON.parse(raw) as FavoriteItem[];
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as FavoriteItem[]) : [];
   } catch {
     return [];
   }
 }
 
 export function saveFavorites(favorites: FavoriteItem[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
+  setItem(STORAGE_KEY, JSON.stringify(favorites));
 }
 
 export function addFavorite(item: FavoriteItem): FavoriteItem[] {

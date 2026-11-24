@@ -1,20 +1,22 @@
 import type { IgnoreRange } from "../types.ts";
 import { mergeRanges } from "../utils/rangeUtils.ts";
+import { STORAGE_KEYS, getItem, setItem } from "./durableStorage.ts";
 
-const STORAGE_KEY = "lgtmoon-wrapper/ignore-ranges";
+const STORAGE_KEY = STORAGE_KEYS.ignoreRanges;
 
 export function loadIgnoreRanges(): IgnoreRange[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = getItem(STORAGE_KEY);
     if (!raw) return [];
-    return JSON.parse(raw) as IgnoreRange[];
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as IgnoreRange[]) : [];
   } catch {
     return [];
   }
 }
 
 export function saveIgnoreRanges(ranges: IgnoreRange[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(ranges));
+  setItem(STORAGE_KEY, JSON.stringify(ranges));
 }
 
 export function addIgnoreRange(start: number, end: number): IgnoreRange[] {
